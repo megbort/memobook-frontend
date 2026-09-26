@@ -101,7 +101,7 @@ const save = async () => {
     header="New Contact"
     :style="{ width: '48rem' }"
     :breakpoints="{ '768px': '95vw' }"
-    @hide="error = null"
+    @hide="reset"
   >
     <form class="flex flex-col gap-6" @submit.prevent="save">
       <Message v-if="error" severity="error" :closable="false">{{ error }}</Message>
