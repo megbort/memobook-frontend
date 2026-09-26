@@ -128,15 +128,24 @@ const run = async (action: () => Promise<void>) => {
   }
 };
 
+// The view is reused across selections, so drop responses for a contact that is no longer selected.
 const load = async () => {
+  const id = props.contact.id;
+  const isCurrent = () => id === props.contact.id;
+  detail.value = null;
   loading.value = true;
   editing.value = false;
   newField.value = null;
   newSocial.value = null;
-  await run(async () => {
-    detail.value = await contactApi.getContactById(props.contact.id);
-  });
-  loading.value = false;
+  error.value = null;
+  try {
+    const result = await contactApi.getContactById(id);
+    if (isCurrent()) detail.value = result;
+  } catch (err) {
+    if (isCurrent()) error.value = err instanceof Error ? err.message : 'Something went wrong.';
+  } finally {
+    if (isCurrent()) loading.value = false;
+  }
 };
 
 watch(() => props.contact.id, load, { immediate: true });
