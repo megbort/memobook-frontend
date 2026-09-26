@@ -287,7 +287,7 @@ const removeSocial = (socialId: string) =>
             @click="removeContact"
           />
           <Button label="Cancel" severity="contrast" variant="outlined" @click="editing = false" />
-          <Button label="Save" icon="pi pi-check" :loading="saving" @click="save" />
+          <Button label="Save" :loading="saving" @click="save" />
         </template>
         <Button
           v-else
