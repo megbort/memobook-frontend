@@ -30,7 +30,6 @@ coverage
 *.tsbuildinfo
 
 .claude
-claude.md
 
 # env files
 .env

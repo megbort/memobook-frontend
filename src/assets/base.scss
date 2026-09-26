@@ -6,7 +6,7 @@
   color-scheme: light;
   --font-logo: 'Knewave', cursive;
   --font-body: 'Ubuntu', sans-serif;
-  --memobook-light-green: #ccff8c;
+  --memobook-light-green: #d6f2d2;
   --memobook-green: #81de76;
   --memobook-dark-green: #5b9a53;
   --memobook-light-blue: #8cd9ff;
@@ -16,6 +16,10 @@
   --memobook-dark-grey: #9e9e9e;
   --memobook-light-grey: #f0f0f0;
   --memobook-white: #f9f9f9;
+  --memobook-error: #ff5050;
+  --memobook-error-dark: #b93b3b;
+  --memobook-warning: #ffcb5c;
+  --memobook-warning-dark: #c79a3b;
 }
 
 :root.dark {

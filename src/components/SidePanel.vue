@@ -11,14 +11,16 @@ import Button from 'primevue/button';
 
 const props = defineProps<{
   contacts: Contact[];
+  selected: Contact | null;
 }>();
 
 const emit = defineEmits<{
   'update:selectedContact': [Contact];
+  add: [];
 }>();
 
 const searchValue = ref('');
-const selectedContact = ref<Contact | null>(props.contacts[0] ?? null);
+const selectedContact = ref<Contact | null>(props.selected ?? props.contacts[0] ?? null);
 
 const filteredContacts = computed(() => {
   if (!searchValue.value) {
@@ -30,17 +32,15 @@ const filteredContacts = computed(() => {
 });
 
 watch(selectedContact, (newContact) => {
-  if (newContact) {
+  if (newContact && newContact !== props.selected) {
     emit('update:selectedContact', newContact);
   }
 });
 
 watch(
-  () => props.contacts,
-  (newContacts) => {
-    if (newContacts.length > 0 && !selectedContact.value) {
-      selectedContact.value = newContacts[0];
-    }
+  () => props.selected,
+  (contact) => {
+    selectedContact.value = contact;
   },
 );
 </script>
@@ -50,7 +50,7 @@ watch(
     <div class="flex flex-col gap-2 p-4 flex-1 min-h-0">
       <div class="flex justify-between">
         <h2>Contacts</h2>
-        <Button icon="pi pi-plus" aria-label="Save" />
+        <Button icon="pi pi-plus" aria-label="Add contact" @click="emit('add')" />
       </div>
 
       <IconField>
@@ -58,13 +58,20 @@ watch(
         <InputText v-model="searchValue" placeholder="Search" />
       </IconField>
       <div class="flex-1 min-h-0 overflow-y-auto">
-        <Listbox v-model="selectedContact" :options="filteredContacts" optionLabel="name" />
+        <Listbox
+          v-model="selectedContact"
+          :options="filteredContacts"
+          optionLabel="name"
+          dataKey="id"
+        />
       </div>
     </div>
 
     <div class="px-4 py-3 text-left text-xs bg-memobook-dark-green">
       <p class="side-panel-footer-text m-0">Designed and built by Megan Krenbrink</p>
-      <p class="side-panel-footer-text m-0">v{{ appVersion.build }} &middot; {{ appVersion.sha }}</p>
+      <p class="side-panel-footer-text m-0">
+        v{{ appVersion.build }} &middot; {{ appVersion.sha }}
+      </p>
     </div>
   </div>
 </template>
