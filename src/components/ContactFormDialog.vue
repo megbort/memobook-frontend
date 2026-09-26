@@ -224,7 +224,7 @@ const save = async () => {
           variant="outlined"
           @click="visible = false"
         />
-        <Button type="submit" label="Create Contact" icon="pi pi-check" :loading="saving" />
+        <Button type="submit" label="Create Contact" :loading="saving" />
       </div>
     </form>
   </Dialog>
