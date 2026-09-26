@@ -6,7 +6,7 @@
 @theme {
   --font-logo: 'Knewave', cursive;
   --font-body: 'Ubuntu', sans-serif;
-  --color-memobook-light-green: #ccff8c;
+  --color-memobook-light-green: #d6f2d2;
   --color-memobook-green: #81de76;
   --color-memobook-dark-green: #5b9a53;
   --color-memobook-light-blue: #8cd9ff;
@@ -16,4 +16,8 @@
   --color-memobook-dark-grey: #9e9e9e;
   --color-memobook-light-grey: #f0f0f0;
   --color-memobook-white: #f9f9f9;
+  --color-memobook-error: #ff5050;
+  --color-memobook-error-dark: #b93b3b;
+  --color-memobook-warning: #ffcb5c;
+  --color-memobook-warning-dark: #c79a3b;
 }
