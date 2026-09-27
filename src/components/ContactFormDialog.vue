@@ -1,12 +1,15 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import Dialog from 'primevue/dialog';
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
 import Textarea from 'primevue/textarea';
 import Message from 'primevue/message';
 import SocialLinkForm from './SocialLinkForm.vue';
+import AvatarPicker from './AvatarPicker.vue';
+import PageLoader from './PageLoader.vue';
 import { contactApi } from '../services/contacts';
+import { uploadApi } from '../services/uploads';
 import type {
   ContactDetail,
   ContactFields,
@@ -46,14 +49,36 @@ const emptySocial = (): SocialLinkInput => ({
 const form = ref<ContactFields>({ firstName: '' });
 const socials = ref<SocialLinkInput[]>([]);
 const customFields = ref<CustomFieldInput[]>([]);
+const avatarFile = ref<File | null>(null);
+const createdContact = ref<ContactDetail | null>(null);
 const saving = ref(false);
 const error = ref<string | null>(null);
+
+const initials = computed(() =>
+  [form.value.firstName, form.value.lastName]
+    .map((part) => part?.trim()[0]?.toUpperCase())
+    .filter(Boolean)
+    .join(''),
+);
 
 const reset = () => {
   form.value = { firstName: '' };
   socials.value = [];
   customFields.value = [];
+  avatarFile.value = null;
+  createdContact.value = null;
   error.value = null;
+};
+
+const onHide = () => {
+  if (createdContact.value) emit('created', createdContact.value);
+  reset();
+};
+
+const uploadAvatarFor = async (contact: ContactDetail) => {
+  if (!avatarFile.value) return contact;
+  const avatar = await uploadApi.uploadAvatar(contact.id, avatarFile.value);
+  return contactApi.updateContact(contact.id, { avatar });
 };
 
 const addCustomField = (section: CustomFieldSection) => {
@@ -78,16 +103,20 @@ const save = async () => {
   saving.value = true;
   error.value = null;
   try {
-    const created = await contactApi.createContact({
+    createdContact.value ??= await contactApi.createContact({
       ...form.value,
       socials: socials.value.filter(hasLink),
       customFields: customFields.value.filter(hasLabel),
     });
-    emit('created', created);
+    const contact = await uploadAvatarFor(createdContact.value);
+    createdContact.value = null;
+    emit('created', contact);
     visible.value = false;
-    reset();
   } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Could not create contact.';
+    const message = err instanceof Error ? err.message : 'Could not create contact.';
+    error.value = createdContact.value
+      ? `Contact saved, but the photo upload failed: ${message}. Retry, or cancel to keep the contact without a photo.`
+      : message;
   } finally {
     saving.value = false;
   }
@@ -101,30 +130,36 @@ const save = async () => {
     header="New Contact"
     :style="{ width: '48rem' }"
     :breakpoints="{ '768px': '95vw' }"
-    @hide="reset"
+    @hide="onHide"
   >
-    <form class="flex flex-col gap-6" @submit.prevent="save">
+    <PageLoader :visible="saving" />
+    <form id="new-contact-form" class="flex flex-col gap-6" @submit.prevent="save">
       <Message v-if="error" severity="error" :closable="false">{{ error }}</Message>
 
-      <div class="flex flex-col gap-3">
-        <div class="flex gap-3">
-          <label class="flex flex-col gap-1 flex-1">
-            <span class="text-sm font-medium text-memobook-dark-grey">First Name *</span>
-            <InputText v-model="form.firstName as string" autofocus />
-          </label>
-          <label class="flex flex-col gap-1 flex-1">
-            <span class="text-sm font-medium text-memobook-dark-grey">Last Name</span>
-            <InputText v-model="form.lastName as string" />
+      <div class="flex flex-col sm:flex-row gap-4 sm:items-center">
+        <AvatarPicker
+          v-model:file="avatarFile"
+          :avatar="form.avatar"
+          :initials="initials"
+          editable
+          @remove="form.avatar = ''"
+        />
+        <div class="flex flex-col gap-3 flex-1">
+          <div class="flex gap-3">
+            <label class="flex flex-col gap-1 flex-1">
+              <span class="text-sm font-medium text-memobook-dark-grey">First Name *</span>
+              <InputText v-model="form.firstName as string" autofocus />
+            </label>
+            <label class="flex flex-col gap-1 flex-1">
+              <span class="text-sm font-medium text-memobook-dark-grey">Last Name</span>
+              <InputText v-model="form.lastName as string" />
+            </label>
+          </div>
+          <label class="flex flex-col gap-1">
+            <span class="text-sm font-medium text-memobook-dark-grey">Description</span>
+            <InputText v-model="form.description as string" placeholder="How do you know them?" />
           </label>
         </div>
-        <label class="flex flex-col gap-1">
-          <span class="text-sm font-medium text-memobook-dark-grey">Description</span>
-          <InputText v-model="form.description as string" placeholder="How do you know them?" />
-        </label>
-        <label class="flex flex-col gap-1">
-          <span class="text-sm font-medium text-memobook-dark-grey">Avatar URL</span>
-          <InputText v-model="form.avatar as string" placeholder="https://…" />
-        </label>
       </div>
 
       <div class="flex gap-6 flex-col md:flex-row">
@@ -215,17 +250,22 @@ const save = async () => {
           @click="socials.push(emptySocial())"
         />
       </section>
-
-      <div class="flex justify-end gap-2">
-        <Button
-          type="button"
-          label="Cancel"
-          severity="contrast"
-          variant="outlined"
-          @click="visible = false"
-        />
-        <Button type="submit" label="Create Contact" :loading="saving" />
-      </div>
     </form>
+
+    <template #footer>
+      <Button
+        type="button"
+        label="Cancel"
+        severity="contrast"
+        variant="outlined"
+        @click="visible = false"
+      />
+      <Button
+        type="submit"
+        form="new-contact-form"
+        :label="createdContact ? 'Retry photo upload' : 'Create Contact'"
+        :loading="saving"
+      />
+    </template>
   </Dialog>
 </template>
