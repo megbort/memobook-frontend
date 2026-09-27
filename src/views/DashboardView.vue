@@ -66,7 +66,7 @@ onMounted(() => {
   <div class="dashboard">
     <DemoBanner />
     <MainBanner />
-    <main class="flex h-full">
+    <main class="flex flex-1 min-h-0">
       <SidePanel
         v-if="!isLoading && !error"
         :contacts="contacts"
