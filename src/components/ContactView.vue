@@ -13,6 +13,9 @@ import {
   type SocialLinkInput,
 } from '../models/contact';
 import { contactApi } from '../services/contacts';
+import { uploadApi } from '../services/uploads';
+import AvatarPicker from './AvatarPicker.vue';
+import PageLoader from './PageLoader.vue';
 
 import Tabs from 'primevue/tabs';
 import TabList from 'primevue/tablist';
@@ -76,7 +79,6 @@ const HEADER_FIELDS: {
   { key: 'firstName', label: 'First Name', required: true },
   { key: 'lastName', label: 'Last Name' },
   { key: 'description', label: 'Description', placeholder: 'A short line about them', wide: true },
-  { key: 'avatar', label: 'Photo URL', placeholder: 'https://…', wide: true },
 ];
 
 const HIDDEN_WHEN_EMPTY: (keyof ContactFields)[] = ['otherNames', 'website'];
@@ -97,6 +99,7 @@ const error = ref<string | null>(null);
 const editing = ref(false);
 const saving = ref(false);
 const draft = ref<Partial<ContactFields>>({});
+const pendingAvatarFile = ref<File | null>(null);
 const fieldValues = ref<Record<string, string | null | undefined>>({});
 
 const newField = ref<CustomFieldInput | null>(null);
@@ -135,6 +138,7 @@ const load = async () => {
   detail.value = null;
   loading.value = true;
   editing.value = false;
+  pendingAvatarFile.value = null;
   newField.value = null;
   newSocial.value = null;
   error.value = null;
@@ -155,7 +159,24 @@ const startEdit = () => {
   const current = detail.value;
   draft.value = Object.fromEntries(EDITABLE_FIELDS.map((key) => [key, current[key] ?? '']));
   fieldValues.value = Object.fromEntries(current.customFields.map((f) => [f.id, f.value ?? '']));
+  pendingAvatarFile.value = null;
   editing.value = true;
+};
+
+const cancelEdit = () => {
+  pendingAvatarFile.value = null;
+  error.value = null;
+  editing.value = false;
+};
+
+const removeAvatar = () => {
+  draft.value.avatar = '';
+};
+
+const uploadPendingAvatar = async (contactId: string) => {
+  if (!pendingAvatarFile.value) return;
+  draft.value.avatar = await uploadApi.uploadAvatar(contactId, pendingAvatarFile.value);
+  pendingAvatarFile.value = null;
 };
 
 const save = () =>
@@ -165,6 +186,7 @@ const save = () =>
     saving.value = true;
     try {
       const id = detail.value.id;
+      await uploadPendingAvatar(id);
       const changedFields = detail.value.customFields.filter(
         (field) => (fieldValues.value[field.id] ?? '') !== (field.value ?? ''),
       );
@@ -248,18 +270,16 @@ const removeSocial = (socialId: string) =>
 
 <template>
   <div class="p-8 flex flex-col gap-4 h-full overflow-y-auto">
+    <PageLoader :visible="saving" />
     <div class="flex flex-wrap gap-4 items-center">
-      <div
-        class="avatar rounded-full w-22 h-22 overflow-hidden relative flex-shrink-0 bg-memobook-light-green flex items-center justify-center"
-      >
-        <img
-          v-if="shown.avatar"
-          :src="shown.avatar"
-          :alt="shown.name"
-          class="w-full h-full object-cover"
-        />
-        <span v-else class="text-2xl font-semibold text-memobook-dark-green">{{ initials }}</span>
-      </div>
+      <AvatarPicker
+        v-model:file="pendingAvatarFile"
+        :avatar="shown.avatar"
+        :name="shown.name"
+        :initials="initials"
+        :editable="editing"
+        @remove="removeAvatar"
+      />
       <div
         v-if="editing"
         class="grid grid-cols-[auto_1fr_auto_1fr] gap-x-2 gap-y-2 items-center flex-1 min-w-64"
@@ -295,7 +315,7 @@ const removeSocial = (socialId: string) =>
             v-tooltip.bottom="'Delete contact'"
             @click="removeContact"
           />
-          <Button label="Cancel" severity="contrast" variant="outlined" @click="editing = false" />
+          <Button label="Cancel" severity="contrast" variant="outlined" @click="cancelEdit" />
           <Button label="Save" :loading="saving" @click="save" />
         </template>
         <Button
