@@ -57,12 +57,14 @@ watch(
         <InputIcon class="pi pi-search" />
         <InputText v-model="searchValue" placeholder="Search" />
       </IconField>
-      <div class="flex-1 min-h-0 overflow-y-auto">
+      <div class="flex-1 min-h-0">
         <Listbox
           v-model="selectedContact"
           :options="filteredContacts"
           optionLabel="name"
           dataKey="id"
+          scroll-height="100%"
+          class="h-full"
         />
       </div>
     </div>
