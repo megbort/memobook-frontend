@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite';
+import { expect } from 'storybook/test';
 import ColourPalette from './ColourPalette.vue';
 
 const meta = {
@@ -10,4 +11,14 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Palette: Story = {};
+const BRAND_COLOUR_COUNT = 14;
+
+export const Palette: Story = {
+  play: async ({ canvas }) => {
+    for (const group of ['Greens', 'Blues', 'Neutrals', 'Feedback', 'PrimeVue primary scale']) {
+      await expect(canvas.getByRole('heading', { name: group })).toBeVisible();
+    }
+    await expect(canvas.getAllByRole('article')).toHaveLength(BRAND_COLOUR_COUNT);
+    await expect(canvas.getByText('#81DE76', { exact: false })).toBeVisible();
+  },
+};

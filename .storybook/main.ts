@@ -6,8 +6,8 @@ const isDevtoolsPlugin = (plugin: PluginOption) =>
   !!plugin && 'name' in plugin && /devtools|inspect/i.test(plugin.name);
 
 const config: StorybookConfig = {
-  stories: ['../src/**/*.mdx', '../src/**/*.stories.@(js|jsx|mjs|ts|tsx)'],
-  addons: ['@storybook/addon-docs', '@storybook/addon-themes'],
+  stories: ['../src/**/*.stories.@(js|jsx|mjs|ts|tsx)'],
+  addons: ['@storybook/addon-docs', '@storybook/addon-themes', '@storybook/addon-vitest'],
   framework: '@storybook/vue3-vite',
   viteFinal: (viteConfig) => ({
     ...viteConfig,

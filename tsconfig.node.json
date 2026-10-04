@@ -3,6 +3,7 @@
   "include": [
     "vite.config.*",
     "vitest.config.*",
+    "vitest.shims.d.ts",
     "cypress.config.*",
     "nightwatch.conf.*",
     "playwright.config.*"
