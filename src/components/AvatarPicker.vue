@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, ref, useId, watch } from 'vue';
 import { withCloudinaryTransformation } from '../utils/cloudinaryUrl';
 
 import Button from 'primevue/button';
@@ -22,6 +22,7 @@ const emit = defineEmits<{
 const pendingFile = defineModel<File | null>('file', { default: null });
 
 const fileInput = ref<HTMLInputElement | null>(null);
+const fileInputId = useId();
 const previewUrl = ref<string | null>(null);
 const validationError = ref<string | null>(null);
 
@@ -107,11 +108,11 @@ const removePhoto = () => {
         class="!absolute bottom-0 right-0 !w-7 !h-7 !p-0 text-xs"
         @click="removePhoto"
       />
-      <label for="avatar-file-input" class="sr-only">
+      <label :for="fileInputId" class="sr-only">
         {{ displayedAvatar ? 'Change photo' : 'Upload photo' }}
       </label>
       <input
-        id="avatar-file-input"
+        :id="fileInputId"
         ref="fileInput"
         type="file"
         accept="image/*"
