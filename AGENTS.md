@@ -14,6 +14,8 @@ npm run type-check   # TypeScript check only
 npm run test:unit    # Vitest unit tests
 npm run test:e2e     # Cypress e2e (requires preview server)
 npm run test:e2e:dev # Cypress e2e against dev server (interactive)
+npm run storybook    # Storybook at http://localhost:6006
+npm run build-storybook # Static Storybook build into storybook-static/
 ```
 
 ## Architecture
@@ -24,11 +26,13 @@ MemoBook is a single-page Vue 3 + TypeScript contact management app. There is cu
 
 **Components:** `DetailRow` (label/value row, switches to inputs when editing), `SocialLinkForm` (inputs for one social link), `ContactTimeline` (PrimeVue `Timeline` over timeline events). `AvatarPicker` (when `editable`, click the avatar to pick an image and use the trash icon to remove it; there is no URL field, uploads set the Cloudinary URL. It only picks a file. `ContactView` uploads it on Save and `ContactFormDialog` uploads it after the contact is created, since uploads are stored under the contact id. `services/uploads.ts` asks the backend for a signed Cloudinary upload and sends the file straight to Cloudinary; `uploadApi.uploadFile(contactId, 'media', file)` is ready for the Media tab). `PageLoader` (full-screen spinner shown while saving). Shared fetch helpers (`API_BASE_URL`, `request`, `send`) live in `services/apiClient.ts`. The Media tab is a placeholder. The Timeline tab is also a "coming soon" placeholder for now; `ContactTimeline.vue` and `contactApi.getTimeline` are kept for when it's built (the backend already logs every change).
 
-**Backend:** JSON REST API (see backend README for the ERD and endpoints). The base URL comes from `VITE_API_BASE_URL` in `.env`, which has a prod and a local line to comment in/out (restart Vite after switching). `.env` is gitignored and CI has none, so the service falls back to the production Railway URL. Without a reachable backend the app shows an error state with a retry button. `src/mocks/contacts.ts` contains sample data but is not wired into the service layer — it exists for reference/testing only.
+**Backend:** JSON REST API (see backend README for the ERD and endpoints). The base URL comes from `VITE_API_BASE_URL` in `.env`, which has a prod and a local line to comment in/out (restart Vite after switching). `.env` is gitignored and CI has none, so the service falls back to the production Railway URL. Without a reachable backend the app shows an error state with a retry button. `src/mocks/` holds sample API data (`contacts.ts`, `contactDetails.ts`, `timeline.ts`) and `mockApi.ts`, an in-memory fake of the REST API that replaces `fetch`. It is only installed by Storybook, never by the app.
 
 **Styling:** Tailwind CSS v4 (imported via `@import 'tailwindcss'` in `src/styles.css`) with a custom design token palette defined under `@theme` (mirrored as CSS variables in `src/assets/base.scss`; keep both in sync with the Figma palette). All brand colours use the `memobook-` prefix (e.g. `text-memobook-green`, `bg-memobook-dark-grey`). `tailwindcss-primeui` bridges Tailwind and PrimeVue theming. SCSS is used for component-scoped styles.
 
 **PrimeVue:** Configured in `src/main.ts` with `MemobookPreset` (`src/theme/memobookPreset.ts`: Aura plus the Figma button styles; see the mapping at the top of that file). Dark mode follows the `.dark` class set by `useTheme`. `ConfirmationService` and the `v-tooltip` directive are registered globally; components are imported per file. Cancel buttons use `severity="contrast" variant="outlined"` (grey).
+
+**Storybook:** Config in `.storybook/`; `preview.ts` mirrors the PrimeVue/Pinia setup from `main.ts`, adds a light/dark toolbar (`.dark` class) and installs the mock API for every story (`parameters.mockApi: { failWithStatus }` simulates errors). Stories live in `src/stories/` (`design-system/`, `components/`, `pages/`), mirroring the sidebar. Component files stay story-free. Cloudinary uploads are not mocked.
 
 **State:** Pinia is set up but not yet used — component state lives in `ref`s within `DashboardView`.
 
