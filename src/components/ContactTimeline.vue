@@ -18,6 +18,8 @@ const ICONS: Record<TimelineEventType, string> = {
   media_added: 'pi pi-image',
 };
 
+const iconFor = (event: TimelineEvent) => ICONS[event.type] ?? 'pi pi-circle';
+
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
 
@@ -36,7 +38,7 @@ const formatValue = (value: unknown) => (value === null || value === '' ? '—' 
       <span
         class="flex w-8 h-8 items-center justify-center rounded-full bg-memobook-green text-memobook-white"
       >
-        <i :class="ICONS[item.type as TimelineEventType] ?? 'pi pi-circle'" class="text-sm" />
+        <i :class="iconFor(item)" class="text-sm" />
       </span>
     </template>
     <template #content="{ item }">

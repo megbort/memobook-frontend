@@ -49,8 +49,9 @@ const validateFile = (file: File) => {
   return null;
 };
 
-const onFileSelected = (event: Event) => {
-  const input = event.target as HTMLInputElement;
+const onFileSelected = () => {
+  const input = fileInput.value;
+  if (!input) return;
   const file = input.files?.[0];
   // Reset so choosing the same file again still fires a change event.
   input.value = '';
@@ -106,7 +107,11 @@ const removePhoto = () => {
         class="!absolute bottom-0 right-0 !w-7 !h-7 !p-0 text-xs"
         @click="removePhoto"
       />
+      <label for="avatar-file-input" class="sr-only">
+        {{ displayedAvatar ? 'Change photo' : 'Upload photo' }}
+      </label>
       <input
+        id="avatar-file-input"
         ref="fileInput"
         type="file"
         accept="image/*"

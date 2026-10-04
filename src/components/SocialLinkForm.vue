@@ -26,21 +26,21 @@ const social = defineModel<SocialLinkInput>({ required: true });
     </Select>
     <InputText
       v-if="social.platform === 'other'"
-      v-model="social.label as string"
+      v-model="social.label"
       placeholder="Name (e.g. Twitch)"
       size="small"
       class="w-36"
       aria-label="Social name"
     />
     <InputText
-      v-model="social.handle as string"
+      v-model="social.handle"
       placeholder="@handle"
       size="small"
       class="w-28"
       aria-label="Handle"
     />
     <InputText
-      v-model="social.url as string"
+      v-model="social.url"
       placeholder="https://…"
       size="small"
       class="flex-1 min-w-24"
