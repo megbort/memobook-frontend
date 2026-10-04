@@ -146,36 +146,61 @@ const save = async () => {
         />
         <div class="flex flex-col gap-3 flex-1">
           <div class="flex gap-3">
-            <label class="flex flex-col gap-1 flex-1">
-              <span class="text-sm font-medium text-memobook-dark-grey">First Name *</span>
-              <InputText v-model="form.firstName as string" autofocus />
-            </label>
-            <label class="flex flex-col gap-1 flex-1">
-              <span class="text-sm font-medium text-memobook-dark-grey">Last Name</span>
-              <InputText v-model="form.lastName as string" />
-            </label>
+            <div class="flex flex-col gap-1 flex-1">
+              <label for="contact-first-name" class="text-sm font-medium text-memobook-dark-grey"
+                >First Name *</label
+              >
+              <InputText id="contact-first-name" v-model="form.firstName" autofocus />
+            </div>
+            <div class="flex flex-col gap-1 flex-1">
+              <label for="contact-last-name" class="text-sm font-medium text-memobook-dark-grey"
+                >Last Name</label
+              >
+              <InputText id="contact-last-name" v-model="form.lastName" />
+            </div>
           </div>
-          <label class="flex flex-col gap-1">
-            <span class="text-sm font-medium text-memobook-dark-grey">Description</span>
-            <InputText v-model="form.description as string" placeholder="How do you know them?" />
-          </label>
+          <div class="flex flex-col gap-1">
+            <label for="contact-description" class="text-sm font-medium text-memobook-dark-grey"
+              >Description</label
+            >
+            <InputText
+              id="contact-description"
+              v-model="form.description"
+              placeholder="How do you know them?"
+            />
+          </div>
         </div>
       </div>
 
       <div class="flex gap-6 flex-col md:flex-row">
         <section class="flex flex-col gap-3 basis-1/2">
           <h3 class="text-lg font-semibold text-memobook-dark-green">Personal Information</h3>
-          <label v-for="field in PERSONAL_FIELDS" :key="field.key" class="flex flex-col gap-1">
-            <span class="text-sm font-medium text-memobook-dark-grey">{{ field.label }}</span>
-            <InputText v-model="form[field.key] as string" size="small" />
-          </label>
-          <div v-for="(field, index) in fieldsFor('personal')" :key="index" class="flex gap-2">
-            <InputText v-model="field.label" placeholder="Label" size="small" class="w-32" />
+          <div v-for="field in PERSONAL_FIELDS" :key="field.key" class="flex flex-col gap-1">
+            <label
+              :for="`contact-personal-${String(field.key)}`"
+              class="text-sm font-medium text-memobook-dark-grey"
+              >{{ field.label }}</label
+            >
             <InputText
-              v-model="field.value as string"
+              :id="`contact-personal-${String(field.key)}`"
+              v-model="form[field.key]"
+              size="small"
+            />
+          </div>
+          <div v-for="(field, index) in fieldsFor('personal')" :key="index" class="flex gap-2">
+            <InputText
+              v-model="field.label"
+              placeholder="Label"
+              size="small"
+              class="w-32"
+              :aria-label="`Personal custom field ${index + 1} label`"
+            />
+            <InputText
+              v-model="field.value"
               placeholder="Value"
               size="small"
               class="flex-1"
+              :aria-label="`Personal custom field ${index + 1} value`"
             />
             <Button
               icon="pi pi-times"
@@ -196,17 +221,32 @@ const save = async () => {
         </section>
         <section class="flex flex-col gap-3 basis-1/2">
           <h3 class="text-lg font-semibold text-memobook-dark-green">Address Information</h3>
-          <label v-for="field in ADDRESS_FIELDS" :key="field.key" class="flex flex-col gap-1">
-            <span class="text-sm font-medium text-memobook-dark-grey">{{ field.label }}</span>
-            <InputText v-model="form[field.key] as string" size="small" />
-          </label>
-          <div v-for="(field, index) in fieldsFor('address')" :key="index" class="flex gap-2">
-            <InputText v-model="field.label" placeholder="Label" size="small" class="w-32" />
+          <div v-for="field in ADDRESS_FIELDS" :key="field.key" class="flex flex-col gap-1">
+            <label
+              :for="`contact-address-${String(field.key)}`"
+              class="text-sm font-medium text-memobook-dark-grey"
+              >{{ field.label }}</label
+            >
             <InputText
-              v-model="field.value as string"
+              :id="`contact-address-${String(field.key)}`"
+              v-model="form[field.key]"
+              size="small"
+            />
+          </div>
+          <div v-for="(field, index) in fieldsFor('address')" :key="index" class="flex gap-2">
+            <InputText
+              v-model="field.label"
+              placeholder="Label"
+              size="small"
+              class="w-32"
+              :aria-label="`Address custom field ${index + 1} label`"
+            />
+            <InputText
+              v-model="field.value"
               placeholder="Value"
               size="small"
               class="flex-1"
+              :aria-label="`Address custom field ${index + 1} value`"
             />
             <Button
               icon="pi pi-times"
@@ -224,10 +264,12 @@ const save = async () => {
             class="self-start !px-0"
             @click="addCustomField('address')"
           />
-          <label class="flex flex-col gap-1">
-            <span class="text-sm font-medium text-memobook-dark-grey">Notes</span>
-            <Textarea v-model="form.notes as string" rows="3" autoResize />
-          </label>
+          <div class="flex flex-col gap-1">
+            <label for="contact-notes" class="text-sm font-medium text-memobook-dark-grey"
+              >Notes</label
+            >
+            <Textarea id="contact-notes" v-model="form.notes" rows="3" autoResize />
+          </div>
         </section>
       </div>
       <section class="flex flex-col gap-3">

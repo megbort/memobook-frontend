@@ -81,7 +81,7 @@ const HEADER_FIELDS: {
   { key: 'description', label: 'Description', placeholder: 'A short line about them', wide: true },
 ];
 
-const HIDDEN_WHEN_EMPTY: (keyof ContactFields)[] = ['otherNames', 'website'];
+const HIDDEN_WHEN_EMPTY = new Set<keyof ContactFields>(['otherNames', 'website']);
 const EDITABLE_FIELDS: (keyof ContactFields)[] = [
   'firstName',
   'lastName',
@@ -120,7 +120,7 @@ const customFieldsFor = (section: CustomFieldSection) =>
   detail.value?.customFields.filter((field) => field.section === section) ?? [];
 
 const isVisible = (key: keyof ContactFields) =>
-  editing.value || !HIDDEN_WHEN_EMPTY.includes(key) || !!shown.value[key];
+  editing.value || !HIDDEN_WHEN_EMPTY.has(key) || !!shown.value[key];
 
 const run = async (action: () => Promise<void>) => {
   error.value = null;
@@ -192,8 +192,8 @@ const save = () =>
       );
       const current = detail.value;
       const changedCoreFields = Object.fromEntries(
-        Object.entries(draft.value).filter(
-          ([key, value]) => (value ?? '') !== (current[key as keyof ContactFields] ?? ''),
+        EDITABLE_FIELDS.filter((key) => (draft.value[key] ?? '') !== (current[key] ?? '')).map(
+          (key) => [key, draft.value[key]],
         ),
       );
       const updated = Object.keys(changedCoreFields).length
@@ -293,7 +293,7 @@ const removeSocial = (socialId: string) =>
           >
           <InputText
             :id="`contact-${field.key}`"
-            v-model="draft[field.key] as string"
+            v-model="draft[field.key]"
             :placeholder="field.placeholder"
             size="small"
             :class="{ 'col-span-3': field.wide }"
@@ -394,7 +394,7 @@ const removeSocial = (socialId: string) =>
                       aria-label="Field label"
                     />
                     <InputText
-                      v-model="newField.value as string"
+                      v-model="newField.value"
                       placeholder="Value"
                       size="small"
                       class="flex-1 min-w-0"
@@ -493,7 +493,7 @@ const removeSocial = (socialId: string) =>
                   <h3 class="text-lg font-semibold text-memobook-dark-green mb-2">Notes</h3>
                   <Textarea
                     v-if="editing"
-                    v-model="draft.notes as string"
+                    v-model="draft.notes"
                     rows="4"
                     autoResize
                     aria-label="Notes"

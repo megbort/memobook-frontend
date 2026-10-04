@@ -8,13 +8,12 @@ defineProps<{
 
 <template>
   <Teleport to="body">
-    <div
+    <output
       v-if="visible"
-      role="status"
       aria-label="Saving"
       class="fixed inset-0 z-[2000] flex items-center justify-center bg-black/30"
     >
       <ProgressSpinner />
-    </div>
+    </output>
   </Teleport>
 </template>

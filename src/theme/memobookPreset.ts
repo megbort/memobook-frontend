@@ -1,16 +1,6 @@
 import { definePreset } from '@primeuix/themes';
 import Aura from '@primeuix/themes/aura';
 
-// Maps the Figma "UI Components" buttons to PrimeVue props:
-//   Figma                 PrimeVue
-//   Filled                <Button />                                (blue)
-//   Filled / Secondary    <Button severity="secondary" />           (dark blue)
-//   Flat                  <Button variant="outlined" />             (+ severity="secondary")
-//   Important             <Button severity="danger" />              (error red)
-//   Icon Button           <Button icon="…" />  /  severity="danger"
-//   Text Button / Link    <Button variant="link" />
-//   (not in Figma) Neutral <Button severity="contrast" variant="outlined" />  grey, for Cancel
-
 const darken = (color: string, amount = 12) => `color-mix(in srgb, ${color}, #000 ${amount}%)`;
 const tint = (color: string, amount = 12) => `color-mix(in srgb, ${color} ${amount}%, transparent)`;
 
@@ -28,7 +18,6 @@ const DARK_GREEN = 'var(--memobook-dark-green)';
 const mix = (color: string, other: string, otherAmount: number) =>
   `color-mix(in srgb, ${color}, ${other} ${otherAmount}%)`;
 
-// Aura's primary palette defaults to emerald; every shade is rebuilt from the MemoBook greens.
 const greenPalette = {
   50: mix(LIGHT_GREEN, '#fff', 50),
   100: LIGHT_GREEN,
@@ -127,7 +116,6 @@ export const MemobookPreset = definePreset(Aura, {
   components: {
     tabs: {
       colorScheme: {
-        // Mid green is too faint as text on white; the underline stays mid green via {primary.color}.
         light: { tab: { activeColor: DARK_GREEN } },
         dark: { tab: { activeColor: GREEN } },
       },
