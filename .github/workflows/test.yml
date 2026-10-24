@@ -5,6 +5,9 @@ on:
     branches: [master]
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   storybook:
     timeout-minutes: 15
@@ -14,7 +17,8 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
+          check-latest: true
           cache: npm
 
       - name: Install dependencies
